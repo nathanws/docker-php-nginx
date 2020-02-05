@@ -11,6 +11,8 @@ RUN apk --no-cache add php7 php7-fpm php7-mysqli php7-json php7-openssl php7-cur
 # Generate keys for sshd
 RUN ssh-keygen -A
 
+RUN sed -i "s|#PermitRootLogin yes|PermitRootLogin yes|g" /etc/ssh/sshd_config
+
 # Configure nginx
 COPY config/nginx.conf /etc/nginx/nginx.conf
 # Remove default server definition
@@ -38,6 +40,9 @@ RUN php -r "unlink('composer-setup.php');"
 
 # Install Laravel
 RUN composer global require laravel/installer
+
+# Set root password to enable ssh login
+RUN echo "root:root" | chpasswd
 
 # Expose the port nginx is reachable on
 EXPOSE 8080 22 443
