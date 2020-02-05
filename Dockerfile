@@ -6,7 +6,7 @@ LABEL Maintainer="Tim de Pater <code@trafex.nl>" \
 RUN apk --no-cache add php7 php7-fpm php7-mysqli php7-json php7-openssl php7-curl \
     php7-zlib php7-xml php7-phar php7-intl php7-dom php7-xmlreader php7-ctype php7-session \
     php7-mbstring php7-gd nginx supervisor curl php7-fileinfo php7-xmlwriter php7-bcmath \
-    php7-zip php7-pdo php7-pdo_mysql
+    php7-zip php7-pdo php7-pdo_mysql php7-tokenizer
 
 # Configure nginx
 COPY config/nginx.conf /etc/nginx/nginx.conf
@@ -23,22 +23,18 @@ COPY config/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 # Setup document root
 RUN mkdir -p /var/www/html
 
-# Make sure files/folders needed by the processes are accessable when they run under the nobody user
-# RUN chown -R nobody.nobody /var/www/html && \
-#   chown -R nobody.nobody /run && \
-#   chown -R nobody.nobody /var/lib/nginx && \
-#   chown -R nobody.nobody /var/tmp/nginx && \
-#   chown -R nobody.nobody /var/log/nginx
-
 # Make the document root a volume
 VOLUME /var/www/html
 
-# Switch to use a non-root user from here on
-# USER nobody
+# Install composer
+WORKDIR ~
+RUN php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+RUN php -r "if (hash_file('sha384', 'composer-setup.php') === 'c5b9b6d368201a9db6f74e2611495f369991b72d9c8cbd3ffbc63edff210eb73d46ffbfce88669ad33695ef77dc76976') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+RUN php composer-setup.php --install-dir=/bin --filename=composer
+RUN php -r "unlink('composer-setup.php');"
 
-# Add application
-# WORKDIR /var/www/html
-# COPY --chown=nobody src/ /var/www/html/
+# Install Laravel
+RUN composer global require laravel/installer
 
 # Expose the port nginx is reachable on
 EXPOSE 8080
