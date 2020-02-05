@@ -11,7 +11,7 @@ RUN apk --no-cache add php7 php7-fpm php7-mysqli php7-json php7-openssl php7-cur
 # Generate keys for sshd
 RUN ssh-keygen -A
 
-RUN sed -i "s|#PermitRootLogin yes|PermitRootLogin yes|g" /etc/ssh/sshd_config
+RUN sed -i "s|#PermitRootLogin prohibit-password|PermitRootLogin yes|g" /etc/ssh/sshd_config
 
 # Configure nginx
 COPY config/nginx.conf /etc/nginx/nginx.conf
