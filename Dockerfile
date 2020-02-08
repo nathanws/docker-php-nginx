@@ -1,6 +1,8 @@
-FROM alpine:3.10
+FROM alpine:3.9
 LABEL Maintainer="Tim de Pater <code@trafex.nl>" \
       Description="Lightweight container with Nginx 1.16 & PHP-FPM 7.3 based on Alpine Linux."
+
+RUN apk update
 
 # Install packages
 RUN apk --no-cache add php7 php7-fpm php7-mysqli php7-json php7-openssl php7-curl \
